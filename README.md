@@ -2,10 +2,11 @@
 
 A suite of **[Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills)** that give Claude Code a structured, senior-level review process for every layer of a web product — from the pixels in the browser down to the rows in the database.
 
-Each layer is its own installable skill. An orchestrator skill stitches them into a single end-to-end pass.
+Each layer is its own installable skill. An orchestrator skill stitches the code-review layers into a single end-to-end pass. A separate **live review** skill drives the *running* product in a browser — the runtime counterpart to reading the code.
 
 ```
 end-to-end-review-skills/
+│  ── code review (static — reads the diff/source) ──
 ├── frontend-review/      🎨  UI/UX, components, state, a11y, perf, SEO
 ├── backend-review/       ⚙️   APIs, services, business logic, errors, observability
 ├── database-review/      🗄️   schema, queries, indexes, migrations, integrity
@@ -13,7 +14,9 @@ end-to-end-review-skills/
 ├── mobile-review/        📱  iOS/Android/RN — lifecycle, offline/sync, battery, native bridge
 ├── infra-review/         🚇  CI/CD, IaC, containers/K8s, deploy & rollback safety
 ├── performance-review/   ⚡  cross-cutting perf — profiling, latency, caching, budgets, scale
-└── end-to-end-review/    🧭  orchestrator — routes to the engaged layers and merges the report
+├── end-to-end-review/    🧭  orchestrator — routes to the engaged code layers and merges the report
+│  ── live review (runtime — drives the running app from a URL) ──
+└── live-review/          🌐  opens a URL in a browser, walks the real journeys, reports what's broken live
 ```
 
 > Inspired by [awesome-skills/code-review-skill](https://github.com/awesome-skills/code-review-skill). Where that skill is one skill spanning many languages, this suite is many skills spanning the layers of one product.
@@ -24,7 +27,11 @@ end-to-end-review-skills/
 
 A real review fails differently at each layer. A frontend reviewer is thinking about layout shift and keyboard focus; a database reviewer is thinking about missing indexes and lock contention. Bundling them into one prompt produces shallow, generic feedback. Splitting them lets each skill carry a **deep, layer-specific checklist** and load only the reference material that matters — and lets you run just the one you need.
 
-You can install a single skill (e.g. only `frontend-review`), or install all five and let the `end-to-end-review` orchestrator coordinate a full sweep.
+You can install a single skill (e.g. only `frontend-review`), or install all of them and let the `end-to-end-review` orchestrator coordinate a full sweep.
+
+### Code review vs live review
+
+The seven layer skills and the orchestrator do **code review** — they read the diff or the source and reason about it. `live-review` is a different mode: it does **runtime review** — give it a URL and it opens the *running* product in a real browser, finds the entry point (marketing page, onboarding form, or authed dashboard), walks the key journeys across viewports, and reports what's actually broken for a user (dead buttons, console/network errors, layout that collapses, keyboard traps, slow paint) with a screenshot and repro steps for each finding. Code review finds bugs in the source; live review finds bugs in the experience — including ones that never appear in a diff (a CDN 404, a wrong staging env var, a third-party widget that blocks the main thread). They're complementary; run both for full coverage.
 
 ---
 
@@ -38,9 +45,9 @@ Skills are plain folders. Copy the ones you want into a skills directory Claude 
 | **Project** | `<repo>/.claude/skills/` | that repo, shared via git |
 
 ```bash
-# Personal install — all eight skills
+# Personal install — all nine skills
 git clone https://github.com/zoexx/end-to-end-review-skills
-cp -R end-to-end-review-skills/{frontend,backend,database,security,mobile,infra,performance,end-to-end}-review ~/.claude/skills/
+cp -R end-to-end-review-skills/{frontend,backend,database,security,mobile,infra,performance,end-to-end,live}-review ~/.claude/skills/
 
 # Or just one skill, project-scoped
 cp -R end-to-end-review-skills/frontend-review <repo>/.claude/skills/
@@ -52,6 +59,8 @@ Restart Claude Code (or run `/skills` to refresh). Each skill activates automati
 > review the frontend changes on this branch
 > /frontend-review
 > run an end-to-end review of this PR
+> open https://staging.example.com and tell me what's broken   # live-review
+> /live-review
 ```
 
 ---
@@ -105,8 +114,11 @@ Every finding carries one label, so authors can triage at a glance:
 | **infra-review** | CI/CD, IaC, containers/K8s, deploy & release safety, config/secrets/observability | fork pwn-request secret exfil, unpinned actions/images, missing resource limits & probes, deploys with no rollback path |
 | **performance-review** | profiling, algorithmic cost, latency/throughput, caching, frontend budgets, load & scalability | O(n²) on the hot path, sequential awaits, cache stampede, bundle bloat, memory growth under load |
 | **end-to-end-review** | orchestration | routes a diff to the right domain skills, merges findings, de-dupes cross-layer issues, produces one prioritized report |
+| **live-review** | runtime walkthrough from a URL | dead buttons, console/network errors in staging, layout that collapses on mobile, broken empty/error states, keyboard traps, measured slow first paint — each with a screenshot + repro |
 
 Each skill folder contains a `SKILL.md` (the entry point), a `reference/` directory of deep-dive guides loaded on demand, and an `assets/` checklist you can hand to a human reviewer.
+
+`live-review` is tool-agnostic about the browser driver: it prefers the **qa-master** MCP (a headless-browser QA server), and falls back to a Playwright MCP or a local CDP tool. See its `reference/browser-tooling.md`.
 
 ---
 
