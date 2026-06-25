@@ -10,7 +10,10 @@ end-to-end-review-skills/
 ├── backend-review/       ⚙️   APIs, services, business logic, errors, observability
 ├── database-review/      🗄️   schema, queries, indexes, migrations, integrity
 ├── security-review/      🔒  authn/z, secrets, input validation, OWASP, supply chain
-└── end-to-end-review/    🧭  orchestrator — runs all four and merges the report
+├── mobile-review/        📱  iOS/Android/RN — lifecycle, offline/sync, battery, native bridge
+├── infra-review/         🚇  CI/CD, IaC, containers/K8s, deploy & rollback safety
+├── performance-review/   ⚡  cross-cutting perf — profiling, latency, caching, budgets, scale
+└── end-to-end-review/    🧭  orchestrator — routes to the engaged layers and merges the report
 ```
 
 > Inspired by [awesome-skills/code-review-skill](https://github.com/awesome-skills/code-review-skill). Where that skill is one skill spanning many languages, this suite is many skills spanning the layers of one product.
@@ -35,9 +38,9 @@ Skills are plain folders. Copy the ones you want into a skills directory Claude 
 | **Project** | `<repo>/.claude/skills/` | that repo, shared via git |
 
 ```bash
-# Personal install — all five skills
-git clone https://github.com/<you>/end-to-end-review-skills
-cp -R end-to-end-review-skills/{frontend,backend,database,security,end-to-end}-review ~/.claude/skills/
+# Personal install — all eight skills
+git clone https://github.com/zoexx/end-to-end-review-skills
+cp -R end-to-end-review-skills/{frontend,backend,database,security,mobile,infra,performance,end-to-end}-review ~/.claude/skills/
 
 # Or just one skill, project-scoped
 cp -R end-to-end-review-skills/frontend-review <repo>/.claude/skills/
@@ -98,6 +101,9 @@ Every finding carries one label, so authors can triage at a glance:
 | **backend-review** | API contracts, business logic, error handling, concurrency, observability | unbounded queries, swallowed errors, non-idempotent retries, missing pagination, N+1 across a service boundary |
 | **database-review** | schema design, query performance, migrations, transactions & integrity | missing indexes on FKs, non-sargable predicates, blocking migrations on large tables, missing `NOT NULL`/unique constraints |
 | **security-review** | authn/z, secrets, input validation, OWASP Top 10, dependency & supply-chain risk | IDOR, SQL/command injection, hardcoded secrets, missing authorization checks, vulnerable transitive deps |
+| **mobile-review** | lifecycle & navigation, offline/sync, battery/memory, platform a11y, native bridge & store readiness | retain cycles, main-thread jank/ANR, lost writes when offline, missing VoiceOver/TalkBack labels, secrets in plaintext storage |
+| **infra-review** | CI/CD, IaC, containers/K8s, deploy & release safety, config/secrets/observability | fork pwn-request secret exfil, unpinned actions/images, missing resource limits & probes, deploys with no rollback path |
+| **performance-review** | profiling, algorithmic cost, latency/throughput, caching, frontend budgets, load & scalability | O(n²) on the hot path, sequential awaits, cache stampede, bundle bloat, memory growth under load |
 | **end-to-end-review** | orchestration | routes a diff to the right domain skills, merges findings, de-dupes cross-layer issues, produces one prioritized report |
 
 Each skill folder contains a `SKILL.md` (the entry point), a `reference/` directory of deep-dive guides loaded on demand, and an `assets/` checklist you can hand to a human reviewer.
@@ -106,7 +112,7 @@ Each skill folder contains a `SKILL.md` (the entry point), a `reference/` direct
 
 ## Contributing
 
-New layers (mobile, infra/DevOps, performance, data/ML) and new language guides under any skill's `reference/` are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+New layers (data/ML, AI/LLM, design-system) and new language guides under any skill's `reference/` are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

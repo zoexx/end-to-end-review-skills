@@ -2,7 +2,7 @@
 name: end-to-end-review
 description: |
   Orchestrates a full-stack code review by routing a change to the right layer-specific
-  review skills (frontend, backend, database, security), running each, then merging the
+  review skills (frontend, backend, database, security, mobile, infra, performance), running each, then merging the
   results into one prioritized report with a single overall verdict. De-duplicates findings
   that surface at multiple layers and surfaces cross-layer issues a single-layer review misses.
   Use when: reviewing a whole PR/branch end to end, full-stack review, review everything,
@@ -23,7 +23,7 @@ This skill is the conductor. It doesn't re-implement layer expertise — it deci
 
 Use it for any review that spans more than one layer: a feature PR, a release branch, "review this whole thing." For a change that's obviously single-layer (a CSS tweak, one migration), invoke that layer's skill directly instead — this orchestrator adds overhead only worth paying when the diff crosses boundaries.
 
-It coordinates four sibling skills (install whichever you have; the orchestrator engages the ones present):
+It coordinates the sibling skills (install whichever you have; the orchestrator engages the ones present):
 
 | Skill | Engaged when the diff touches… |
 | --- | --- |
@@ -31,6 +31,9 @@ It coordinates four sibling skills (install whichever you have; the orchestrator
 | **backend-review** | `routes/`, `api/`, `controllers/`, `services/`, `handlers/`, `middleware/`, `*.go`, server-side `*.py`/`*.rb`/`*.java`/`*.ts`, API contracts, business logic |
 | **database-review** | `migrations/`, `*.sql`, `schema.prisma`, `models/`, `entities/`, `repositories/`, ORM query code, anything that changes the data model or a query |
 | **security-review** | auth/session/crypto code, input handling, file uploads, `package.json`/lockfiles, `.env`/config, anything reachable by untrusted input — **plus a light pass on every review** |
+| **mobile-review** | `*.swift`, `*.kt`, React Native `*.tsx`, `Info.plist`, `AndroidManifest.xml`, native modules, navigation, offline/sync, push/permissions |
+| **infra-review** | `Dockerfile`, `.github/workflows/`, `*.tf`, `k8s/`/Helm charts, `wrangler`/serverless config, deploy scripts |
+| **performance-review** | hot paths, caching, payload/bundle size, load/scale concerns — a cross-cutting lens engaged on perf-sensitive changes or on request |
 
 > Security gets a light pass on **every** review even if no obviously-security file changed: a new endpoint, a new query, or a new form field all open attack surface.
 
