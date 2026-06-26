@@ -16,7 +16,9 @@ end-to-end-review-skills/
 ├── performance-review/   ⚡  cross-cutting perf — profiling, latency, caching, budgets, scale
 ├── end-to-end-review/    🧭  orchestrator — routes to the engaged code layers and merges the report
 │  ── live review (runtime — drives the running app from a URL) ──
-└── live-review/          🌐  opens a URL in a browser, walks the real journeys, reports what's broken live
+├── live-review/          🌐  opens a URL in a browser, walks the real journeys, reports what's broken live
+│  ── brand review (strategy — measures brand-market fit from metrics) ──
+└── brand-review/         📣  scores Awareness→Relevance→Resonance→Conversion→Advocacy, finds the bottleneck
 ```
 
 > Inspired by [awesome-skills/code-review-skill](https://github.com/awesome-skills/code-review-skill). Where that skill is one skill spanning many languages, this suite is many skills spanning the layers of one product.
@@ -33,6 +35,8 @@ You can install a single skill (e.g. only `frontend-review`), or install all of 
 
 The seven layer skills and the orchestrator do **code review** — they read the diff or the source and reason about it. `live-review` is a different mode: it does **runtime review** — give it a URL and it opens the *running* product in a real browser, finds the entry point (marketing page, onboarding form, or authed dashboard), walks the key journeys across viewports, and reports what's actually broken for a user (dead buttons, console/network errors, layout that collapses, keyboard traps, slow paint) with a screenshot and repro steps for each finding. Code review finds bugs in the source; live review finds bugs in the experience — including ones that never appear in a diff (a CDN 404, a wrong staging env var, a third-party widget that blocks the main thread). They're complementary; run both for full coverage.
 
+`brand-review` is a **third mode** — **strategy review**. It judges neither the source nor the running app but the *fit between the brand and its market*. Give it a brand and its metrics and it scores five dimensions as a funnel — Awareness → Relevance → Resonance → Conversion → Advocacy — benchmarks each, finds the single weakest stage throttling growth, and prescribes the highest-leverage moves, ending in a brand-market-fit grade. Where the code and live reviews ask "is it built/running well?", brand review asks "**does the market want it, and where is the funnel leaking?**" It's an analyst diagnostic, not a merge gate, so it stands outside the `end-to-end-review` orchestrator (which routes code diffs).
+
 ---
 
 ## Install
@@ -45,9 +49,9 @@ Skills are plain folders. Copy the ones you want into a skills directory Claude 
 | **Project** | `<repo>/.claude/skills/` | that repo, shared via git |
 
 ```bash
-# Personal install — all nine skills
+# Personal install — all ten skills
 git clone https://github.com/zoexx/end-to-end-review-skills
-cp -R end-to-end-review-skills/{frontend,backend,database,security,mobile,infra,performance,end-to-end,live}-review ~/.claude/skills/
+cp -R end-to-end-review-skills/{frontend,backend,database,security,mobile,infra,performance,end-to-end,live,brand}-review ~/.claude/skills/
 
 # Or just one skill, project-scoped
 cp -R end-to-end-review-skills/frontend-review <repo>/.claude/skills/
@@ -61,6 +65,8 @@ Restart Claude Code (or run `/skills` to refresh). Each skill activates automati
 > run an end-to-end review of this PR
 > open https://staging.example.com and tell me what's broken   # live-review
 > /live-review
+> run a brand-market-fit audit — here are our GA4 + Stripe numbers   # brand-review
+> /brand-review
 ```
 
 ---
@@ -115,6 +121,7 @@ Every finding carries one label, so authors can triage at a glance:
 | **performance-review** | profiling, algorithmic cost, latency/throughput, caching, frontend budgets, load & scalability | O(n²) on the hot path, sequential awaits, cache stampede, bundle bloat, memory growth under load |
 | **end-to-end-review** | orchestration | routes a diff to the right domain skills, merges findings, de-dupes cross-layer issues, produces one prioritized report |
 | **live-review** | runtime walkthrough from a URL | dead buttons, console/network errors in staging, layout that collapses on mobile, broken empty/error states, keyboard traps, measured slow first paint — each with a screenshot + repro |
+| **brand-review** | brand-market-fit diagnostic from metrics | share of search trailing the category, value-prop that fails the 5-second test, low share/UGC (weak resonance), LTV:CAC underwater, high NPS but no referral mechanism — with the funnel bottleneck named |
 
 Each skill folder contains a `SKILL.md` (the entry point), a `reference/` directory of deep-dive guides loaded on demand, and an `assets/` checklist you can hand to a human reviewer.
 
